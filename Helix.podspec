@@ -16,4 +16,5 @@ Dependency injection framework for iOS written in Swift.
   s.ios.deployment_target = '9.0'
 
   s.source_files = 'Source/**/*'
+  s.exclude_files = 'Source/**/*.plist'
 end

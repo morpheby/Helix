@@ -29,6 +29,7 @@
 		B1858EF61FF95255000BD2B2 /* HelixTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1858EF51FF95255000BD2B2 /* HelixTag.swift */; };
 		B1B9129B20434EBC001606FC /* StoryboardInstantiatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B9129A20434EBC001606FC /* StoryboardInstantiatable.swift */; };
 		B1B9129D204355BE001606FC /* NSObject+HelixTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B9129C204355BE001606FC /* NSObject+HelixTag.swift */; };
+		F65D8A56219C42DF0042C86E /* HelixInject.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65D8A55219C42DF0042C86E /* HelixInject.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +68,7 @@
 		B1858EF51FF95255000BD2B2 /* HelixTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelixTag.swift; sourceTree = "<group>"; };
 		B1B9129A20434EBC001606FC /* StoryboardInstantiatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryboardInstantiatable.swift; sourceTree = "<group>"; };
 		B1B9129C204355BE001606FC /* NSObject+HelixTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSObject+HelixTag.swift"; sourceTree = "<group>"; };
+		F65D8A55219C42DF0042C86E /* HelixInject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelixInject.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -144,6 +146,7 @@
 				B1858EAD1FF86351000BD2B2 /* HelixTaggable.swift */,
 				B1858EB21FF8645D000BD2B2 /* HelixResolvable.swift */,
 				B1B9129A20434EBC001606FC /* StoryboardInstantiatable.swift */,
+				F65D8A55219C42DF0042C86E /* HelixInject.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -292,6 +295,7 @@
 				B1B9129D204355BE001606FC /* NSObject+HelixTag.swift in Sources */,
 				B1858EEC1FF869B4000BD2B2 /* Dictionary+Subscripts.swift in Sources */,
 				B1B9129B20434EBC001606FC /* StoryboardInstantiatable.swift in Sources */,
+				F65D8A56219C42DF0042C86E /* HelixInject.swift in Sources */,
 				B1858EBE1FF8655C000BD2B2 /* GraphDefinition.swift in Sources */,
 				B1858ED01FF86710000BD2B2 /* Injected.swift in Sources */,
 				B1858EE61FF86941000BD2B2 /* Box.swift in Sources */,

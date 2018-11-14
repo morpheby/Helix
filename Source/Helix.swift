@@ -655,7 +655,17 @@ public final class Helix {
             debugPrint("The instance is already resolved, reusing it \(previouslyResolved)")
             return previouslyResolved
         }
+
+        if let autoInjnectType = T.self as? HelixInject.Type {
+            autoInjnectType.push(context: HelixInitContext(helix: self))
+        }
+
         var resolvedInstance = try resolvingLambda(definition)
+
+        if let autoInjnectType = T.self as? HelixInject.Type {
+            autoInjnectType.pop(context: HelixInitContext(helix: self))
+        }
+
         // Type erasure
         if let box = resolvedInstance as? BoxType, let unboxed = box.unboxed as? T {
             resolvedInstance = unboxed

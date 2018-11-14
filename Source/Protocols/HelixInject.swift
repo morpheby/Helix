@@ -36,7 +36,7 @@ extension HelixInitContext: Equatable {
 
 fileprivate let HELIX_INIT_CONTEXT_KEY = "HELIX_INIT_CONTEXT_KEY"
 
-extension HelixInject {
+public extension HelixInject {
     internal static var initContext: HelixInitContext {
         let dict = Thread.current.threadDictionary
         guard let ctxObj = dict[HELIX_INIT_CONTEXT_KEY] else {

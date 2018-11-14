@@ -36,3 +36,13 @@ extension HelixTaggable where Self: RawRepresentable, Self.RawValue == String {
         return .String(rawValue)
     }
 }
+
+public protocol HelixSelfTagged {
+    var dependencyTag: HelixTag { get }
+}
+
+extension HelixTaggable where Self: HelixSelfTagged {
+    public var dependencyTag: HelixTag {
+        return .String("\(Self.self)")
+    }
+}

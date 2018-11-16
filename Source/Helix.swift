@@ -9,32 +9,32 @@
 import Foundation
 
 public final class Helix {
-    
+
     // MARK: - Internal typealias
-    
+
     typealias SimpleLambda = () throws -> ()
-    
+
     // MARK: - Internal properties
-    
+
     /// A Parent Helix object if present
     let parent: Helix?
-    
+
     /// The Resolving context attached to this Helix object
     var ctx: ResolvingContext!
-    
+
     /// The collection of GraphDefinitions the Helix can resolve
     var graphDefinitions = [GraphDefinitionKey: InternalGraphDefinitionType]()
-    
+
     /// A collection of already resolved items for reuse
     var resolvedItems = ResolvedItems()
-    
+
     /// The Helix object can only be initialized once, this flag will prevent multiple
     /// initializations
     var isInitialized = false
-    
+
     /// A queue of SimpleLambda to execute during initialization
     var initializingQueue: [SimpleLambda] = []
-    
+
     /// A collection of Helix object stored internally as weak references
     /// and returned as unwrapped instances
     var helixes: [Helix] {
@@ -45,28 +45,28 @@ public final class Helix {
             weakHelixes = newValue.filter({ $0 !== self }).map(WeakBox.init)
         }
     }
-    
+
     // MARK: - Private properties
-    
+
     /// Mutex for sync in a thread safe way multiple operations
     private let mutex = NSRecursiveLock()
-    
+
     /// Internal weak storage of a collection of Helix instances
     private var weakHelixes: [WeakBox<Helix>] = []
-    
+
     // MARK: - Static properties
-    
+
     static public var ibHelixes: [Helix] = []
-    
+
     // MARK: - Initializers
-    
+
     public init(parent: Helix?, configLambda: ((Helix) -> ())?) {
         self.parent = parent
         configLambda?(self)
     }
-    
+
     // MARK: - Public methods
-    
+
     /// It bootstraps and setup the Helix object
     ///
     /// - Throws: Any error
@@ -80,7 +80,7 @@ public final class Helix {
             initializingQueue.removeAll()
         }
     }
-    
+
     /// Adds a series of Helix objects to collaborate in resolving
     /// dependencies
     ///
@@ -94,7 +94,7 @@ public final class Helix {
             collaborationReferences(between: helixInstance, and: self)
         }
     }
-    
+
     /// Tries to resolve an instance of type T with the given tag
     ///
     /// - Parameter tag: The tag
@@ -105,7 +105,7 @@ public final class Helix {
             try factory()
         })
     }
-    
+
     /// Tries to resolve and instance of type T with the given tag
     /// without being strictily typed
     ///
@@ -114,12 +114,17 @@ public final class Helix {
     ///   - tag: The tag
     /// - Returns: The resolved instance
     /// - Throws: Possible errors during resolution
-    public func resolve(_ type: Any.Type, tag: HelixTaggable? = nil) throws -> Any {
-        return try resolve(type, tag: tag) { (factory: () throws -> Any) in
+    public func resolve<T>(_ type: T.Type, tag: HelixTaggable? = nil) throws -> T {
+        return try resolve(type, tag: tag) { (factory: () throws -> T) in
             try factory()
         }
     }
-    
+    public func resolveUnknown(_ type: Any.Type, tag: HelixTaggable? = nil) throws -> Any {
+        return try resolveUnknown(type, tag: tag) { (factory: () throws -> Any) in
+            try factory()
+        }
+    }
+
     /// Tries to resolve and instance of the inferred type T with one argument
     ///
     /// - Parameters:
@@ -132,7 +137,7 @@ public final class Helix {
             try factory(arg1)
         }
     }
-    
+
     /// Tries to resolve and instance of the given type with one argument
     ///
     /// - Parameters:
@@ -141,12 +146,12 @@ public final class Helix {
     ///   - arg1: One argument
     /// - Returns: The resolved type
     /// - Throws: Any error during resolution
-    public func resolve<A>(_ type: Any.Type, tag: HelixTaggable? = nil, arguments arg1: A) throws -> Any {
+    public func resolve<T, A>(_ type: T.Type, tag: HelixTaggable? = nil, arguments arg1: A) throws -> T {
         return try resolve(type, tag: tag) { factory in
             try factory(arg1)
         }
     }
-    
+
     /// Tries to resolve and instance of the inferred type T with two arguments
     ///
     /// - Parameters:
@@ -160,7 +165,7 @@ public final class Helix {
             try factory((arg1, arg2))
             } as! T
     }
-    
+
     /// Tries to resolve and instance of the given type with two arguments
     ///
     /// - Parameters:
@@ -170,12 +175,12 @@ public final class Helix {
     ///   - arg2: Second argument
     /// - Returns: The resolved type
     /// - Throws: Any error during resolution
-    public func resolve<A, B>(_ type: Any.Type, tag: HelixTaggable? = nil, arguments arg1: A, _ arg2: B) throws -> Any {
+    public func resolve<T, A, B>(_ type: T.Type, tag: HelixTaggable? = nil, arguments arg1: A, _ arg2: B) throws -> T {
         return try resolve(type, tag: tag) { factory in
             try factory((arg1, arg2))
         }
     }
-    
+
     /// Tries to resolve and instance of the inferred type T with three arguments
     ///
     /// - Parameters:
@@ -190,7 +195,7 @@ public final class Helix {
             try factory((arg1, arg2, arg3))
             } as! T
     }
-    
+
     /// Tries to resolve and instance of the given type with three arguments
     ///
     /// - Parameters:
@@ -201,12 +206,12 @@ public final class Helix {
     ///   - arg3: Third argument
     /// - Returns: The resolved type
     /// - Throws: Any error during resolution
-    public func resolve<A, B, C>(_ type: Any.Type, tag: HelixTaggable? = nil, arguments arg1: A, _ arg2: B, _ arg3: C) throws -> Any {
+    public func resolve<T, A, B, C>(_ type: T.Type, tag: HelixTaggable? = nil, arguments arg1: A, _ arg2: B, _ arg3: C) throws -> T {
         return try resolve(type, tag: tag) { factory in
             try factory((arg1, arg2, arg3))
         }
     }
-    
+
     /// Tries to resolve and instance of the inferred type T with four arguments
     ///
     /// - Parameters:
@@ -222,7 +227,7 @@ public final class Helix {
             try factory((arg1, arg2, arg3, arg4))
             } as! T
     }
-    
+
     /// Tries to resolve and instance of the given type with four arguments
     ///
     /// - Parameters:
@@ -234,12 +239,12 @@ public final class Helix {
     ///   - arg4: Fourth argument
     /// - Returns: The resolved type
     /// - Throws: Any error during resolution
-    public func resolve<A, B, C, D>(_ type: Any.Type, tag: HelixTaggable? = nil, arguments arg1: A, _ arg2: B, _ arg3: C, _ arg4: D) throws -> Any {
+    public func resolve<T, A, B, C, D>(_ type: T.Type, tag: HelixTaggable? = nil, arguments arg1: A, _ arg2: B, _ arg3: C, _ arg4: D) throws -> T {
         return try resolve(type, tag: tag) { factory in
             try factory((arg1, arg2, arg3, arg4))
         }
     }
-    
+
     /// Tries to resolve and instance of the inferred type T with five arguments
     ///
     /// - Parameters:
@@ -256,7 +261,7 @@ public final class Helix {
             try factory((arg1, arg2, arg3, arg4, arg5))
             } as! T
     }
-    
+
     /// Tries to resolve and instance of the given type with five arguments
     ///
     /// - Parameters:
@@ -269,12 +274,12 @@ public final class Helix {
     ///   - arg5: Fifth argument
     /// - Returns: The resolved type
     /// - Throws: Any error during resolution
-    public func resolve<A, B, C, D, E>(_ type: Any.Type, tag: HelixTaggable? = nil, arguments arg1: A, _ arg2: B, _ arg3: C, _ arg4: D, _ arg5: E) throws -> Any {
+    public func resolve<T, A, B, C, D, E>(_ type: T.Type, tag: HelixTaggable? = nil, arguments arg1: A, _ arg2: B, _ arg3: C, _ arg4: D, _ arg5: E) throws -> T {
         return try resolve(type, tag: tag) { factory in
             try factory((arg1, arg2, arg3, arg4, arg5))
         }
     }
-    
+
     /// Tries to resolve UI instances when used with storyboards
     ///
     /// - Parameters:
@@ -286,7 +291,7 @@ public final class Helix {
             instance
         }
     }
-    
+
     /// Adds a GraphDefinition for the specified type to the instance of Helix
     ///
     /// - Parameters:
@@ -328,7 +333,7 @@ public final class Helix {
         add(graphDefinition: forwardDefinition, tag: tag)
         return forwardDefinition
     }
-    
+
     /// Adds a GraphDefinition for the resolved type to the instance of Helix
     ///
     /// - Parameters:
@@ -337,7 +342,7 @@ public final class Helix {
     public func add<T, U>(graphDefinition: GraphDefinition<T, U>, tag: HelixTaggable? = nil) {
         addDefinition(graphDefinition, tag: tag)
     }
-    
+
     /// Adds to the Helix instance a building factory for the type T with the given tag
     ///
     /// - Parameters:
@@ -354,7 +359,7 @@ public final class Helix {
         add(graphDefinition: graphDefinition, tag: tag)
         return graphDefinition
     }
-    
+
     /// Adds a factory with one parameter to the Helix container
     ///
     /// - Parameters:
@@ -366,7 +371,7 @@ public final class Helix {
     @discardableResult public func register<T, A>(_ scope: CreationScope = .unique, type: T.Type = T.self, tag: HelixTaggable? = nil, factory: @escaping ((A)) throws -> T) -> GraphDefinition<T, A> {
         return register(scope: scope, type: type, tag: tag, factory: factory, numberOfArguments: 1) { container, tag in try factory(container.resolve(tag: tag)) }
     }
-    
+
     /// Adds a factory with two parameters to the Helix container
     ///
     /// - Parameters:
@@ -379,7 +384,7 @@ public final class Helix {
         ) throws -> T) -> GraphDefinition<T, (A, B)> {
         return register(scope: scope, type: type, tag: tag, factory: factory, numberOfArguments: 2) { container, tag in try factory((container.resolve(tag: tag), container.resolve(tag: tag))) }
     }
-    
+
     /// Adds a factory with three parameters to the Helix container
     ///
     /// - Parameters:
@@ -391,7 +396,7 @@ public final class Helix {
     @discardableResult public func register<T, A, B, C>(_ scope: CreationScope = .unique, type: T.Type = T.self, tag: HelixTaggable? = nil, factory: @escaping ((A, B, C)) throws -> T) -> GraphDefinition<T, (A, B, C)> {
         return register(scope: scope, type: type, tag: tag, factory: factory, numberOfArguments: 3)  { container, tag in try factory((container.resolve(tag: tag), container.resolve(tag: tag), container.resolve(tag: tag))) }
     }
-    
+
     /// Adds a factory with four parameters to the Helix container
     ///
     /// - Parameters:
@@ -403,7 +408,7 @@ public final class Helix {
     @discardableResult public func register<T, A, B, C, D>(_ scope: CreationScope = .unique, type: T.Type = T.self, tag: HelixTaggable? = nil, factory: @escaping ((A, B, C, D)) throws -> T) -> GraphDefinition<T, (A, B, C, D)> {
         return register(scope: scope, type: type, tag: tag, factory: factory, numberOfArguments: 4) { container, tag in try factory((container.resolve(tag: tag),  container.resolve(tag: tag), container.resolve(tag: tag), container.resolve(tag: tag))) }
     }
-    
+
     /// Adds a factory with five parameters to the Helix container
     ///
     /// - Parameters:
@@ -415,7 +420,7 @@ public final class Helix {
     @discardableResult public func register<T, A, B, C, D, E>(_ scope: CreationScope = .unique, type: T.Type = T.self, tag: HelixTaggable? = nil, factory: @escaping ((A, B, C, D, E)) throws -> T) -> GraphDefinition<T, (A, B, C, D, E)> {
         return register(scope: scope, type: type, tag: tag, factory: factory, numberOfArguments: 5) { container, tag in try factory((container.resolve(tag: tag), container.resolve(tag: tag), container.resolve(tag: tag), container.resolve(tag: tag), container.resolve(tag: tag))) }
     }
-    
+
     /// Registers a storyboard of type T associated with the given tag
     ///
     /// - Parameters:
@@ -425,7 +430,7 @@ public final class Helix {
     public func register<T: NSObject>(storyboardType type: T.Type, tag: HelixTaggable? = nil) -> GraphDefinition<T, ()> where T: StoryboardInstantiatable {
         return register(.shared, type: type, tag: tag, factory: { T() })
     }
-    
+
     /// Tries to validate the whole configuration of the Helix instance by resolving every
     /// definition using the values passed
     ///
@@ -465,7 +470,7 @@ public final class Helix {
             }
         }
     }
-    
+
     /// Removes a GraphDefinition from the Helix' instance
     ///
     /// - Parameters:
@@ -485,7 +490,7 @@ public final class Helix {
             resolvedItems.sharedWeakSingletons[key] = nil
         }
     }
-    
+
     /// Resets the Helix instance
     public func reset() {
         threadLocked {
@@ -498,9 +503,9 @@ public final class Helix {
             isInitialized = false
         }
     }
-    
+
     // MARK: - Internal methods
-    
+
     /// Executes the passed Lambda in thread safe way
     /// using a common mutex for the instance
     ///
@@ -514,7 +519,7 @@ public final class Helix {
         }
         return try lambda()
     }
-    
+
     /// Tries to resolve the dependency using a context with the given parameters
     ///
     /// - Parameters:
@@ -563,7 +568,7 @@ public final class Helix {
             }
         }
     }
-    
+
     /// Tries to resolve an instance of type T using a resolving Lambda
     ///
     /// - Parameters:
@@ -578,7 +583,7 @@ public final class Helix {
             })
         }) as! T
     }
-    
+
     /// Tries to resolve an instance of type T using a resolving Lambda without parameters
     ///
     /// - Parameters:
@@ -593,7 +598,7 @@ public final class Helix {
             })
         }) as! T
     }
-    
+
     /// Tries to resolve a weak instance of type T using a resolving Lambda
     ///
     /// - Parameters:
@@ -602,15 +607,17 @@ public final class Helix {
     ///   - resolvingLambda: The lambda used to resolve
     /// - Returns: An instance of type T if succeeded
     /// - Throws: Any error during resolution
-    func resolve<U>(_ type: Any.Type, tag: HelixTaggable? = nil, resolvingLambda: ((U) throws -> Any) throws -> Any) throws -> Any {
+    func resolve<T, U>(_ type: T.Type, tag: HelixTaggable? = nil, resolvingLambda: ((U) throws -> T) throws -> T) throws -> T {
         let key = GraphDefinitionKey(type: type, typeOfArguments: U.self, tag: tag?.dependencyTag)
         return try resolveWithContext(definitionKey:key, neededByType: ctx?.typeBeingResolved, resolvesInCollaboration: false, helix: self) {
             try self.resolveDefinition(definitionKey: key, resolvingLambda: { definition in
-                try resolvingLambda(definition.weakFactory)
+                try resolvingLambda({ t in
+                    return try definition.weakFactory(t) as! T
+                })
             })
         }
     }
-    
+
     /// Tries to resolve a weak instance of type T using a resolving Lambda without parameters
     ///
     /// - Parameters:
@@ -619,15 +626,27 @@ public final class Helix {
     ///   - resolvingLambda: The lambda used to resolve
     /// - Returns: An instance of type T if succeeded
     /// - Throws: Any error during resolution
-    func resolve(_ type: Any.Type, tag: HelixTaggable? = nil, resolvingLambda: (() throws -> Any) throws -> Any) throws -> Any {
+    func resolve<T>(_ type: T.Type, tag: HelixTaggable? = nil, resolvingLambda: (() throws -> T) throws -> T) throws -> T {
         let key = GraphDefinitionKey(type: type, typeOfArguments: Void.self, tag: tag?.dependencyTag)
         return try resolveWithContext(definitionKey:key, neededByType: ctx?.typeBeingResolved, resolvesInCollaboration: false, helix: self) {
             try self.resolveDefinition(definitionKey: key, resolvingLambda: { definition in
-                try resolvingLambda { try definition.weakFactory(()) }
+                try resolvingLambda({
+                    return try definition.weakFactory(()) as! T
+                })
             })
         }
     }
-    
+    func resolveUnknown(_ type: Any.Type, tag: HelixTaggable? = nil, resolvingLambda: (() throws -> Any) throws -> Any) throws -> Any {
+        let key = GraphDefinitionKey(type: type, typeOfArguments: Void.self, tag: tag?.dependencyTag)
+        return try resolveWithContext(definitionKey:key, neededByType: ctx?.typeBeingResolved, resolvesInCollaboration: false, helix: self) {
+            try self.resolveDefinition(definitionKey: key, resolvingLambda: { definition in
+                try resolvingLambda({
+                    return try definition.weakFactory(())
+                })
+            })
+        }
+    }
+
     /// Searchs the definition graph for the given definition key and tries to resolve
     /// an instance of type T
     ///
@@ -684,7 +703,7 @@ public final class Helix {
         debugPrint("Can not reuse, new instance resolved for \(key.type) with \(resolvedInstance)")
         return resolvedInstance
     }
-    
+
     /// Searches for already resolved instances for the give GraphDefinition and GraphDefinitionKey, if
     /// an exact match is found it returns it, if not gets all the related ones and tries to cast it,
     /// returning it if possible
@@ -707,7 +726,7 @@ public final class Helix {
         }
         return nil
     }
-    
+
     /// Searches for a graphDefinition that matches the given graphDefinitionKey
     ///
     /// - Parameter definitionKey: The graphDefinitionKey to match
@@ -721,7 +740,7 @@ public final class Helix {
         }
         return nil
     }
-    
+
     /// Tries to resolve searching through the parent
     ///
     /// - Parameters:
@@ -761,7 +780,7 @@ public final class Helix {
         forwardingDefinitions = sort(graphDefinitionsTuples: forwardingDefinitions, usingTag: definitionKey.tag)
         return forwardingDefinitions.first
     }
-    
+
     /// Updates the references of the given Helix object to match
     /// the ones of the given collaborator
     ///
@@ -778,7 +797,7 @@ public final class Helix {
             collaborationReferences(between: subHelix, and: collaborator)
         }
     }
-    
+
     /// Tries to resolve the graph object using this instance collaborating Helixes
     ///
     /// - Parameters:
@@ -825,7 +844,7 @@ public final class Helix {
         }
         return nil
     }
-    
+
     /// Adds a definition for the inferred type with the given tag
     ///
     /// - Parameters:
@@ -852,7 +871,7 @@ public final class Helix {
             }
         }
     }
-    
+
     /// Adds to the Helix instance a generic building factory with the given tag
     ///
     /// - Parameters:
@@ -873,7 +892,7 @@ public final class Helix {
         add(graphDefinition: graphDefinition, tag: tag)
         return graphDefinition
     }
-    
+
     /// Tries to resolve the properties for the given instance
     ///
     /// - Parameter instance: The instance to resolve it's properties
@@ -887,7 +906,7 @@ public final class Helix {
         }
         try mirror.children.forEach(resolveProperties)
     }
-    
+
     /// Tries to resolve the properties marked as inject
     ///
     /// - Parameter child: The instance
@@ -905,7 +924,7 @@ public final class Helix {
             try injectedPropertyBox.resolve(ctx.helix)
         }
     }
-    
+
     /// Tries to resolve an instance using Auto Wiring
     ///
     /// - Parameter definitionKey: The definitionKey of the dependency
@@ -926,7 +945,7 @@ public final class Helix {
             throw HelixError.autoWiringFailed(type: definitionKey.type, underlyingError: error)
         }
     }
-    
+
     /// Tries to find a GraphObjectDefinitionTuple from the GraphDefinitionKey depending if the
     /// tag exists or not
     ///
@@ -944,7 +963,7 @@ public final class Helix {
             }
         }
     }
-    
+
     /// Tries to find a GraphObjectDefinitionTuple from the GraphDefinitionKey depending if the
     /// tag exists or not
     ///
@@ -974,9 +993,9 @@ public final class Helix {
 // MARK: - CustomStringConvertible
 
 extension Helix: CustomStringConvertible {
-    
+
     public var description: String {
         return "Helix instance with definitions: \(graphDefinitions.count)\n" + graphDefinitions.map({ "\($0.0)" }).joined(separator: "\n")
     }
-    
+
 }
